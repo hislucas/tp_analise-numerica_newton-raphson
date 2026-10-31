@@ -71,10 +71,10 @@ function F = calcular_F(X)
 	F(4) = X(7) - 1727.5 + 10.06*X(2) - 0.033033*X(2)^2 + 7.4709*X(6) - 0.003919*X(6)^2 - 0.050921*X(2)*X(6) + 0.8525e-4*X(2)^2*X(6) + 0.2356e-4*X(2)*X(6)^2 - 0.4473e-7*X(2)^2*X(6)^2;
 
 	% Ec = w * cp * (t2-25), onde cp = 1.03
-	F(5) = X(3) - X(1)*1.03*( X(4)-25 );
+	F(5) = X(3) - X(1)*1.03*( X(4)-25 ); % F(5) = X(3) - X(1)*1.03*X(4) - X(1)*1.03*(-25) = X(3) - X(1)*1.03*X(4) + X(1)*1.03*(25)
 
 	% 8000 = w * cp * (t-t2)
-	F(6) = 8000 - X(1) * 1.03 * ( X(6) - X(4) );
+	F(6) = 8000 - X(1) * 1.03 * ( X(6) - X(4) ); % F(6) = 8000 - X(1)*1.03*X(6) + X(1)*1.03*X(4)
 
 	% Et = Ec + Es
 	F(7) = X(7) - X(3) - X(5);
@@ -82,15 +82,63 @@ function F = calcular_F(X)
 end
 
 
+% matriz jacobiana
+function J = calcular_Jacobiana(X)
+	J = zeros(7, 7);
 
+	%1a equacao
+	J(1, 1) = 0 - 0 - 45.6 + 8.06*X(1); % em função de x1
+	J(1, 2) = 1 - 0 - 0 + 0; % em função de x2
+	% o resto é 0, que sao as derivações em funcao das outras variáveis que não estão nessa equação
+
+	%2a equacao
+	J(2, 2) = 0 - 0 + 0.383 - 2*0.00513*X(2); %x2
+	J(2, 3) = 1 - 0 + 0 - 0; %x3
+
+	%3a equacao
+	J(3, 1) = 1 - 0 - 0 - 0 + 0 - 0 - 0 + 0 + 0 - 0; %x1
+	J(3, 2) = 0 - 0.02332 - 2*0.48e-4*X(2) + 0 - 0 - 0.000121*X(6) + 2*0.2736e-6*X(2)*X(6) + 0.1137e-6*X(6)^2 - 2*0.2124e-9*X(2)*X(6)^2; %x2
+	J(3, 6) = 0 - 0 - 0 + 0.02644 - 2*0.1849e-4*X(6) - 0.000121*X(2) + 0.2736e-6*X(2)^2 + 2*0.1137e-6*X(2)*X(6) - 2*0.2124e-9*X(2)^2*X(6);  %x6
+
+	%4a equacao
+	J(4, 2) = 0 - 0 + 10.06 - 2*0.033033*X(2) + 0 - 0 - 0.050921*X(6) + 2*0.8525e-4*X(2)*X(6) + 0.2356e-4*X(6)^2 - 2*0.4473e-7*X(2)*X(6)^2; %x2
+	J(4, 6) = 0 - 0 + 0 - 0 + 7.4709 - 2*0.003919*X(6) - 0.050921*X(2) + 0.8525e-4*X(2)^2 + 2*0.2356e-4*X(2)*X(6) - 2*0.4473e-7*X(2)^2*X(6); %x6
+	J(4, 7) = 1 - 0 + 0 - 0 + 0 - 0 - 0 + 0 + 0 - 0; %x7
+
+	%5a equacao
+	J(5, 1) = 0 - 1.03*( X(4)-25 ); %x1
+	J(5, 3) = 1 - 0; %x3
+	J(5, 4) = 0 - X(1)*1.03 + 0; %x4
+
+	%6a equacao
+	J(6, 1) = 0 - 1.03*X(6) + 1.03*X(4); %x1
+	J(6, 4) = 0 - 0 + X(1)*1.03; %x4
+	J(6, 6) = 0 - X(1)*1.03; %x6
+
+	%7a equacao
+	J(7, 3) = 0 - 1 - 0; %x3
+	J(7, 5) = 0 - 0 - 1; %x5
+	J(7, 7) = 1 - 0 - 0; %x7
+
+end
+
+
+
+
+k = 1;
 tol = 10^(-10);
 erro = 1;
 while (erro > tol)
-	X_atual = X(:, k);
-	F = calcular(F(X_atual));
 
-	%depois jacobiana
-	%depois lu
+	X_atual = X(:, k);
+
+	F = calcular_F(X_atual);
+
+	J = calcular_Jacobiana(X_atual);
+
+	% aplicar lu às variáveis L, U e P (returns do lu)
+	[L, U, P] = lu(J); %não é lupo igual à cueca
+	%como aplicar? pesquisar
 
 
 end
