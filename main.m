@@ -9,6 +9,17 @@
 % A ideia é implementar Newton-Raphson para várias variáveis! Como fazer? A fórmula tá no livro e nas anotações.
 
 
+X(:, 1) = [
+	10; % X(1,1) = w inicial
+	300; % X(2,1) = p inicial
+	1000; % X(3,1) = Ec inicial
+	250; % X(4,1) = t2 inicial
+	1500; % X(5,1) = Es inicial
+	800; % X(6,1) = t3 inicial -> referido por t
+	2400; % X(7,1) = Et inicial
+];
+
+
 k = 1;
 tol = 10^(-10); % tolerância máxima definida no enunciado
 erro = 1;
@@ -37,15 +48,11 @@ while (erro > tol)
 end
 
 
-X(:, 1) = [
-	10; % X(1,1) = w inicial
-	300; % X(2,1) = p inicial
-	1000; % X(3,1) = Ec inicial
-	250; % X(4,1) = t2 inicial
-	1500; % X(5,1) = Es inicial
-	800; % X(6,1) = t3 inicial -> referido por t
-	2400; % X(7,1) = Et inicial
-]
+% display dos resultados. Depois vou colocar no latex e gerar o pdf
+
+
+
+
 
 
 function F = calcular_F(X)
