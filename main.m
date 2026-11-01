@@ -8,6 +8,7 @@
 
 % A ideia é implementar Newton-Raphson para várias variáveis! Como fazer? A fórmula tá no livro e nas anotações.
 
+clear X X_original F J tol iteracoes k erro L U P delta
 
 X(:, 1) = [
 	10; % X(1,1) = w inicial
@@ -18,41 +19,7 @@ X(:, 1) = [
 	800; % X(6,1) = t3 inicial -> referido por t
 	2400; % X(7,1) = Et inicial
 ];
-
-
-k = 1;
-tol = 10^(-10); % tolerância máxima definida no enunciado
-erro = 1;
-while (erro > tol)
-
-	X_atual = X(:, k);
-
-	F = calcular_F(X_atual);
-
-	J = calcular_Jacobiana(X_atual);
-
-	% aplicar lu às variáveis L, U e P
-	[L, U, P] = lu(J);
-
-	% valor delta para ajuste
-	delta = U \ ( L \ ( P * (-F) ) );
-
-	% ajuste dos pesos por delta
-	X(:, k+1) = X_atual + delta;
-
-	%cálculo do erro
-	erro = norm(delta, inf);
-
-	% iteração
-	k = k+1;
-end
-
-
-% display dos resultados. Depois vou colocar no latex e gerar o pdf
-
-
-
-
+X_original = X;
 
 
 function F = calcular_F(X)
@@ -78,7 +45,6 @@ function F = calcular_F(X)
 
 	% Et = Ec + Es
 	F(7) = X(7) - X(3) - X(5);
-
 end
 
 
@@ -119,5 +85,55 @@ function J = calcular_Jacobiana(X)
 	J(7, 3) = 0 - 1 - 0; %x3
 	J(7, 5) = 0 - 0 - 1; %x5
 	J(7, 7) = 1 - 0 - 0; %x7
+
+end
+
+
+k = 1;
+iteracoes(1) = 0;
+tol = 10^(-10); % tolerância máxima definida no enunciado
+erro(1) = 1;
+while (erro > tol)
+
+	X_atual = X(:, k);
+
+	F = calcular_F(X_atual);
+
+	J = calcular_Jacobiana(X_atual);
+
+	% aplicar lu às variáveis L, U e P
+	[L, U, P] = lu(J);
+
+	% valor delta para ajuste
+	delta(:, k) = U \ ( L \ ( P * (-F) ) );
+
+	% ajuste dos pesos por delta
+	X(:, k+1) = X_atual + delta(:, k);
+
+	%cálculo do erro
+	erro(k+1) = norm(delta(:, k), inf);
+
+	% iteração
+	k = k+1;
+	iteracoes(k) = k-1;
+
+end
+
+
+% display dos resultados. Depois vou colocar no latex e gerar o pdf
+clear k;
+
+fprintf("k | w             | p              | Ec              | t2             | Es              | t3             | Et              | Erro       | Delta\n");
+for (k = 1:size(iteracoes, 2))
+    fprintf("%i ", k-1);
+    fprintf("| %.10f ", X(:, k));
+    fprintf("| %.2e ", erro(k));
+
+    if (k>1)
+        fprintf("| ");
+        fprintf("%-9.2e ", delta(:, k-1));
+    end
+
+    fprintf("| \n");
 
 end
