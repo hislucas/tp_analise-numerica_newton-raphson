@@ -15,7 +15,7 @@
 cp = 1.03 %[K J/(KgK)]
 p = 331 + 45.6*w - 4.03*w^2; %[Pa]
 
-%atmosférica para a entrada do compressor
+%pressao atmosférica para a entrada do compressor
 p1 = 101000; %[Pa]
 t1 = 25; %[°C]
 Ec = w*cp*(t2-25)
@@ -24,10 +24,6 @@ Ec = w*cp*(t2-25)
 p2 = p; %[Pa]
 t2 = ?; %[°C]
 % 8000 = w*cp*(t3-t2); []
-% Como colocar essa eq no sistema? Depende de w. Sabendo cp (vide enunciado) e t3 e t2, dá pra fazer. 
-% Calor específico = 1.03*10^3 [J/(KgK) -> Lê-se Quilograma Kelvin]
-% Talvez seja assim que vamos descobrir t3. Sim, ficou t3 = 8000/(w*cp) + t2
-%%% Na nova estrutura, os valores não vão ser calculados sequencialmente. Portanto, melhor deixar na forma mais fácil de derivar (original).
 
 %saida do queimador / entrada da turbina:
 w = 8.5019 + 0.02332*p + 0.48*10^(-4)*p^2 - 0.02644*t + 0.1849*10^(-4)*t^2 + 0.000121*p*t - 0.2736*10^(-6)*p^2*t - 0.1137*10^(-6)*p*t^2 + 0.2124*10^(-9)*p^2*t^2; %[kg/s]
@@ -124,7 +120,6 @@ end
 
 
 
-
 k = 1;
 tol = 10^(-10);
 erro = 1;
@@ -138,12 +133,24 @@ while (erro > tol)
 
 	% aplicar lu às variáveis L, U e P (returns do lu)
 	[L, U, P] = lu(J); %não é lupo igual à cueca
-	%como aplicar? pesquisar
+	% substiituicao sucessiva como?
+	% bom usar mldivide (\) pra resolver sistemas no octave
+	% J * delta = -F
+	% P * J * delta = -F * P
+	% P*J = L*U
+	% L*U*delta = -F*P
+	%portanto
+	delta = U \ ( L \ ( P * (-F) ) )
+	%que multiplica P * -F para ajeitar as linhas pra permutação
+	% depois L*y = P*-F  via mldivide (L\(-F*P)) :. y = U*delta
+	% depois U*delta = y via mldivide de novo (U\y) | y definido logo acima
+
+	% pensei agora: por que nao usar cholesky? precisa de matriz simétrica ij ji, e essa aí não é
+
+	X(:, k+1) = X_atual + delta;
+	erro = norm(delta, inf) %abs nao deu;
+	k = k+1;
 
 
 end
-
-
-
-
 
