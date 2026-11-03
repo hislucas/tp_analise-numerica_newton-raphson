@@ -1,0 +1,90 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in,landscape]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazilian]{babel}
+
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{comment}
+
+
+\setlength{\parindent}{4pt}
+\setlength{\parskip}{1\baselineskip}
+
+\lstdefinestyle{csvstyle}{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{gray!10},
+  frame=single,
+  breaklines=true,
+  columns=fullflexible
+}
+
+\lstdefinestyle{cppstyle}{
+  language=MATLAB,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue!70!black}\bfseries,
+  commentstyle=\color{green!40!black},
+  stringstyle=\color{orange!60!black},
+  backgroundcolor=\color{gray!8},
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  columns=fullflexible,
+  tabsize=2,
+  showstringspaces=false
+}
+
+\title{Resultados de TP: Simulação de um sistema termodinâmico turbina-compressor-queimador}
+\author{Lucas Ferreira Simões (n°2026020102)\\Universidade Federal de Minas Gerais}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Introdução}
+
+O trabalho é sobre um sistema compressor-queimador-turbina, onde o compressor começa ativado (gastando Ec = 1000kW), pegando ar do ambiente (t1 = 25°C, p = 101kPa) e enviando (vazão w = 10kg/s) para dentro do sistema (t2 = 250°C, p2 = 300kPa) a caminho do queimador, que aumenta a temperatura desse ar (t (ou t3) = 800°C, p3 = p2 = 300kPa) e o injeta na turbina que gera movimento para realimentar o compressor e sobrar energia para qualquer outra carga estabilizada (Es(carga) = 1500kW, Et(turbina) = 2400kW). Pelos valores iniciais, a ideia alterar os valores das variáveis para convergir a um ponto de equilíbrio entre todas elas, isto é, onde a turbina ofereça a energia exata para o compressor enviar a quantidade exata de ar ao queimador para manter o circuito estável e funcionando. Para isso, resolvemos um sistema de equações cujas variáveis são as componentes dessas alterações no circuito.
+
+Nesse trabalho uso o método de Newton-Raphson para várias variáveis, resolvendo sistemas usando fatoração LU e matriz jacobiana para aproximar o sistema de funções simultâneas. Como o professor não pediu um relatório completo, não vou me estender aqui. O pedido foi que eu apresentasse os resultados dados por esses valores iniciais.
+
+O trabalho foi feito e testado em Octave, depois compilado e testado em MATLAB e apresentou resultados semelhantes nos dois, funcionando perfeitamente. Os únicos warnings que o compilador apresentou foram sobre alocar grande espaço para os vetores (ao invés de dinamicamente) para melhorar a velocidade do código, mas não é necessário e nem perceptível nesse trabalho.
+
+
+\section{Resultados}
+
+Os resultados do método de Newton-Raphson são apresentados por iteração. O erro e o vetor de correção $\Delta$ ocupam colunas separadas.
+
+\begin{table}[htbp]
+\centering
+\caption{Resultados por iteração do método de Newton-Raphson}
+\scriptsize
+\setlength{\tabcolsep}{2.4pt}
+\renewcommand{\arraystretch}{3}
+\begin{tabular}{@{}r r r r r r r r r m{5.5cm}@{}}
+\toprule
+$k$ & $w$ (kg/s) & $p$ (kPa) & $E_c$ (kW) & $t_2$ ($^\circ$C) & $E_s$ (kW) & $t_3$ ($^\circ$C) & $E_t$ (kW) & Erro & $\Delta$ \\
+\midrule
+0 & 10.0000000000 & 300.0000000000 & 1000.0000000000 & 250.0000000000 & 1500.0000000000 & 800.0000000000 & 2400.0000000000 & 1.00e+00 &  \\
+1 & 10.9093592993 & 352.1724245256 & 1507.4046840965 & 150.8893850962 & 1570.6849821317 & 877.5736527627 & 3078.0896662283 & 6.78e+02 & \shortstack[l]{9.09e-01, 5.22e+01, 5.07e+02, -9.91e+01 \\ 7.07e+01, 7.76e+01, 6.78e+02} \\
+2 & 10.7677146962 & 354.8356153068 & 1529.9712246322 & 162.7936565012 & 1597.7452527609 & 884.1853514664 & 3127.7164773931 & 4.96e+01 & \shortstack[l]{-1.42e-01, 2.66e+00, 2.26e+01, 1.19e+01 \\ 2.71e+01, 6.61e+00, 4.96e+01} \\
+3 & 10.7652956155 & 354.8543972012 & 1530.0687937452 & 162.9900061562 & 1598.5137013795 & 884.4741478838 & 3128.5824951247 & 8.66e-01 & \shortstack[l]{-2.42e-03, 1.88e-02, 9.76e-02, 1.96e-01 \\ 7.68e-01, 2.89e-01, 8.66e-01} \\
+4 & 10.7652949442 & 354.8544012565 & 1530.0688087663 & 162.9900602383 & 1598.5140917183 & 884.4742677338 & 3128.5829004846 & 4.05e-04 & \shortstack[l]{-6.71e-07, 4.06e-06, 1.50e-05, 5.41e-05 \\ 3.90e-04, 1.20e-04, 4.05e-04} \\
+5 & 10.7652949442 & 354.8544012565 & 1530.0688087663 & 162.9900602383 & 1598.5140917183 & 884.4742677339 & 3128.5829004846 & 3.75e-11 & \shortstack[l]{-2.82e-14, -6.00e-13, -1.84e-12, 3.58e-12 \\ 3.75e-11, 9.65e-12, 3.59e-11} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{center}
+A ordem dos componentes de $\Delta$ é $(w,p,E_c,t_2,E_s,t_3,E_t)$. A iteração $k=0$ não possui vetor de correção.
+\end{center}
+
+Pelos resultados, as variáveis convergiram para aproximadamente $w = 10{,}7653\,\mathrm{kg/s}$, $p = 354{,}8544\,\mathrm{kPa}$, $E_c = 1530{,}0688\,\mathrm{kW}$, $t_2 = 162{,}9901\,^{\circ}\mathrm{C}$, $E_s = 1598{,}5141\,\mathrm{kW}$, $t_3 = 884{,}4743\,^{\circ}\mathrm{C}$ e $E_t = 3128{,}5829\,\mathrm{kW}$ (os valores com 10 casas decimais estão na tabela). Portanto, o sistema estaria em equilíbrio aproximadamente nesses valores. O erro máximo obtido foi de $3{,}75 \times 10^{-11}$, abaixo do limite de $1 \times 10^{-10}$ indicado no enunciado. Os valores dos polinômios de ajuste $\Delta$ também constam da tabela.
+
+Notei que o valor de t3 foi o último a convergir. Isso acontece porque ele está presente em várias equações, e elas precisam todas começarem a estabilizar para se estabilizar também. Testei o valor inicial dele em 884 e ele voltou para 870, para daí então convergir normalmente. Em inicial=870, ele foi pra 871. Geometricamente, parece que a subida dele foi mais útil quando começou de longe do que quando começou de perto.
+ 
+\end{document}
