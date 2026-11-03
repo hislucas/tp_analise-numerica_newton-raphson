@@ -123,17 +123,24 @@ end
 % display dos resultados. Depois vou colocar no latex e gerar o pdf
 clear k;
 
-fprintf("k | w             | p              | Ec              | t2             | Es              | t3             | Et              | Erro       | Delta\n");
+fprintf("k | w             | p              | Ec              | t2             | Es              | t3             | Et              |  Erro     | Delta\n");
 for (k = 1:size(iteracoes, 2))
     fprintf("%i ", k-1);
     fprintf("| %.10f ", X(:, k));
-    fprintf("| %.2e ", erro(k));
+    fprintf("| %9.2e ", erro(k));
 
     if (k>1)
         fprintf("| ");
-        fprintf("%-9.2e ", delta(:, k-1));
+        fprintf("%10.2e ", delta(:, k-1));
     end
 
     fprintf("| \n");
 
 end
+
+% Referências:
+% https://pt.wikipedia.org/wiki/Matriz_jacobiana
+% https://pt.wikipedia.org/wiki/M%C3%A9todo_de_Newton%E2%80%93Raphson
+% CAMPOS, Frederico Ferreira. Algoritmos numéricos. 4.ed. Edição do Autor, 2024. xiv, 428p.
+% Aulas de Análise Numérica
+
